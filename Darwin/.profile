@@ -2,11 +2,9 @@
 # Copyright © 2014-2015 The developers of .dotfiles. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/raphaelcohn/.dotfiles/master/COPYRIGHT.
 
 
-
-# Essential: Ensure PATH is set (usually set via getty or PAM)
-if [ -z "${PATH+unset}" ]; then
-	# Default Mac OS X PATH
-	export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+# Security: Ensure CDPATH is unset
+if [ -n "${CDPATH+set}" ]; then
+	unset CDPATH
 fi
 
 # Essential: Ensure HOME is set (usually set via getty or PAM or login)
@@ -14,13 +12,13 @@ if [ -z "${HOME+unset}" ]; then
 	export HOME="$(cd ~; pwd -P)"
 fi
 
+# Essential: Ensure PATH is set (usually set via getty or PAM; we want to control it here)
+# Default Mac OS X PATH is /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin (We do not use /etc/paths and /etc/paths.d)
+# We want to make it include homebrew's sbin and rustup's / multirusts's cargo bin
+export PATH="$HOME"/.cargo/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
+
 # Security: Run a logout script (bash shells will also run .bash_logout; this happens before .sh_logout)
 trap '. ~/.sh_logout' EXIT
-
-# Security: Ensure CDPATH is unset
-if [ -n "${CDPATH+set}" ]; then
-	unset CDPATH
-fi
 
 # Permissions: Ensure new files created by users are, say, 0600 rather than 0644
 umask 022
@@ -148,11 +146,6 @@ if [ -z "${HOMEBREW_NO_ANALYTICS+unset}" ]; then
 	export HOMEBREW_NO_ANALYTICS=1
 fi
 
-# Homebrew: sbin support (bin is included by OS X by default)
-if [ -d /usr/local/sbin ]; then
-	export PATH=/usr/local/sbin:"$PATH"
-fi
-
 # Homebrew: bash-completions package
 if command -v brew 1>/dev/null 2>/dev/null; then
 	_local_bashCompletions="$(brew --prefix)"/etc/bash_completion
@@ -173,16 +166,27 @@ if command -v brew 1>/dev/null 2>/dev/null; then
 	fi
 fi
 
-# Rust: rustup / multirust support
-if [ -d "$HOME"/.cargo/bin ]; then
-	export PATH="$HOME"/.cargo/bin:"$PATH"
-fi
-
 # Rust: Required to build bindgen on Mac OS X
 if [ -z "${DYLD_LIBRARY_PATH+unset}" ]; then
-	export DYLD_LIBRARY_PATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib
+	export DYLD_LIBRARY_PATH='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib'
 else
-	export DYLD_LIBRARY_PATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib:"$DYLD_LIBRARY_PATH"
+
+	_local_IFS="$IFS"
+	IFS=:
+	_local_needsPathFragment=false
+	for _local_pathFragment in $DYLD_LIBRARY_PATH
+	do
+		if [ "$_local_pathFragment" = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib' ]; then
+			_local_needsPathFragment=true
+		fi
+	done
+	IFS="$_local_IFS"
+	if $_local_needsPathFragment; then
+		export DYLD_LIBRARY_PATH='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib':"$DYLD_LIBRARY_PATH"
+	fi
+	unset _local_pathFragment
+	unset _local_needsPathFragment
+	unset _local_IFS
 fi
 
 # Android on Mac OS X
@@ -191,60 +195,3 @@ if [ -z "${ANDROID_HOME+unset}" ]; then
 		export ANDROID_HOME=/usr/local/opt/android-sdk
 	fi
 fi
-
-
-# Homebrew openssh package
-# Modify /System/Library/LaunchAgents/org.openbsd.ssh-agent.plist, change path of ssh-agent to that in /usr/local/bin
-# Then launchctl unload <path>; launchctl load path
-# eval $(ssh-agent)
-# cleanup()
-# {
-# echo "Killing ssh-agent"
-# kill -9 "$SSH_AGENT_PID"
-# }
-# trap cleanup EXIT
-
-# Homebrew gpg-agent package
-#  --enable-ssh-support removed, and from gpg-agent.conf, too.
-# if command -V gpg-agent 1>/dev/null; then
-#
-# 	if command -V tty 1>/dev/null; then
-# 		export GPG_TTY="$(tty)"
-# 	fi
-#
-# 	if [ -s ~/.gpg-agent-info ]; then
-#
-# 		unset GPG_AGENT_INFO
-# 		unset SSH_AUTH_SOCK
-# 		unset SSH_AGENT_PID
-# 		. ~/.gpg-agent-info
-#
-# 		IFS=':' read -r _local_socketPath _local_pid _local_instanceCount <<<"$GPG_AGENT_INFO"
-#
-# 		# gpg-agent not running, clean up and start
-# 		if ! kill -0 "$_local_pid" 2>/dev/null; then
-# 			rm -f ~/.gpg-agent-info
-# 			rm -rf "${_local_socketPath%/*}"
-# 			rm -rf "${SSH_AUTH_SOCK%/*}"
-# 			gpg-agent --quiet --daemon --sh --write-env-file ~/.gpg-agent-info 1>/dev/null
-# 			. ~/.gpg-agent-info
-# 		fi
-#
-# 		unset _local_socketPath
-# 		unset _local_pid
-# 		unset _local_instanceCount
-#
-# 		export GPG_AGENT_INFO
-# 		export SSH_AUTH_SOCK
-# 		export SSH_AGENT_PID
-# 	else
-# 		gpg-agent --quiet --daemon --sh --write-env-file ~/.gpg-agent-info 1>/dev/null
-# 		. ~/.gpg-agent-info
-#
-# 		export GPG_AGENT_INFO
-# 		export SSH_AUTH_SOCK
-# 		export SSH_AGENT_PID
-# 	fi
-# elif [ -f ~/.gpg-agent-info ]; then
-# 	rm -f ~/.gpg-agent-info
-# fi
