@@ -97,6 +97,14 @@ install_main()
 				continue
 			fi
 			
+			case "$fileToInstall" in
+				
+				.|..)
+					continue
+				;;
+				
+			esac
+			
 			set +e
 				rm -rf ~/"$fileToInstall"
 				if [ $? -ne 0 ]; then
@@ -107,6 +115,8 @@ install_main()
 					if [ $? -ne 0 ]; then
 						printf '%s\n' "Could not link file '~/$fileToInstall'" 1>&2
 						eventualExitCode=1
+					else
+						printf '%s\n' "Installed dotfile '~/$fileToInstall'" 1>&2
 					fi
 				fi
 			set -e
