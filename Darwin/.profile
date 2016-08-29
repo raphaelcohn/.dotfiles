@@ -173,11 +173,12 @@ else
 
 	_local_IFS="$IFS"
 	IFS=:
-	_local_needsPathFragment=false
+	_local_needsPathFragment=true
 	for _local_pathFragment in $DYLD_LIBRARY_PATH
 	do
 		if [ "$_local_pathFragment" = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib' ]; then
-			_local_needsPathFragment=true
+			_local_needsPathFragment=false
+			break
 		fi
 	done
 	IFS="$_local_IFS"
