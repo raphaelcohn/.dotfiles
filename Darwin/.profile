@@ -192,11 +192,6 @@ if [ -z "${ANDROID_HOME+unset}" ]; then
 	fi
 fi
 
-# perlbrew (not part of homebrew)
-# if [ -s ~/perl5/perlbrew/etc/bashrc ]; then
-# 	. ~/perl5/perlbrew/etc/bashrc
-# fi
-
 
 # Homebrew openssh package
 # Modify /System/Library/LaunchAgents/org.openbsd.ssh-agent.plist, change path of ssh-agent to that in /usr/local/bin

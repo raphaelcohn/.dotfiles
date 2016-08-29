@@ -19,6 +19,11 @@ case "$-" in
 		# History: Suppress the history command
 		# History: Suppress the exit command (prevents accidents)
 		HISTIGNORE="&:history:exit"
+		
+		# perlbrew: Source bashrc
+		if [ -f ~/perl5/perlbrew/etc/bashrc -a -s ~/perl5/perlbrew/etc/bashrc ]; then
+			. ~/perl5/perlbrew/etc/bashrc
+		fi
 	;;
 	
 	*)
