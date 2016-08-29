@@ -2,12 +2,75 @@
 # Copyright © 2014-2015 The developers of .dotfiles. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/raphaelcohn/.dotfiles/master/COPYRIGHT.
 
 
-# Generic: Ensure CDPATH is unset
+
+# Essential: Ensure PATH is set (usually set via getty or PAM)
+if [ -z "${PATH+unset}" ]; then
+	# Default Mac OS X PATH
+	export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+fi
+
+# Essential: Ensure HOME is set (usually set via getty or PAM or login)
+if [ -z "${HOME+unset}" ]; then
+	export HOME="$(cd ~; pwd -P)"
+fi
+
+# Security: Run a logout script (bash shells will also run .bash_logout; this happens before .sh_logout)
+trap '. ~/.sh_logout' EXIT
+
+# Security: Ensure CDPATH is unset
 if [ -n "${CDPATH+set}" ]; then
 	unset CDPATH
 fi
 
-# Generic: Get rid of legacy mail checking
+# Permissions: Ensure new files created by users are, say, 0600 rather than 0644
+umask 022
+
+# Permissions: Make sure ~/.netrc is locked down
+# Consider making this file owned by root but readable by the user
+if [ -f ~/.netrc ]; then
+	chmod 0400 ~/.netrc || true
+fi
+
+# Permissions/SSH: Make sure ~/.ssh is locked down
+# See https://en.wikibooks.org/wiki/OpenSSH/Client_Configuration_Files for details
+# Consider making these files owned by root but readable by the user
+if [ -d ~/.ssh ]; then
+	chmod 0700 ~/.ssh || true
+	
+	# config and known_hosts are considered 'client-side'; everything else is considered 'server-side'
+	
+	for _local_sshConfigFile in authorized_keys authorized_principals config environment rc known_hosts identity identity.pub id_dsa id_dsa.pub id_rsa id_rsa.pub id_ecdsa id_ecdsa.pub id_ed25519 id_ed25519.pub
+	do
+		if [ -f ~/.ssh/"$_local_sshConfigFile" ]; then
+			chmod 0400 ~/.ssh/"$_local_sshConfigFile" || true
+		fi
+	done
+	unset _local_sshConfigFile
+	
+	if [ -f ~/.ssh/known_hosts ]; then
+		chmod 0600 ~/.ssh/known_hosts || true
+	fi
+fi
+
+# ? TODO: Make sure legacy .ssh/identity and .ssh/identity.pub are useless
+
+# Security/SSH: Make sure legacy .rhosts and .shosts are useless
+# Consider making these files owned by root but readable by the user
+for _local_legacyFile in .rhosts .shosts
+do
+	if [ ! -e ~/"$_local_legacyFile" ]; then
+		continue
+	fi
+	
+	if [ -c ~/"$_local_legacyFile" ]; then
+		continue
+	fi
+	
+	ln -sf /dev/null ~/"$_local_legacyFile" || true
+done
+unset _local_legacyFile
+
+# Mail: Get rid of legacy mail checking
 if [ -n "${MAIL+set}" ]; then
 	unset MAIL
 fi
@@ -18,27 +81,11 @@ if [ -n "${MAILPATH+set}" ]; then
 	unset MAILPATH
 fi
 
-# Generic: Ensure PATH is set (usually set via getty or PAM)
-if [ -z "${PATH+unset}" ]; then
-	# Default Mac OS X PATH
-	export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-fi
 
-# Generic: Ensure FCEDIT is unset (important for ksh88, pdksh, yash)
+# History: Ensure FCEDIT is unset (important for ksh88, pdksh, yash)
 if [ -n "${FCEDIT+set}" ]; then
 	unset FCEDIT
 fi
-
-# Generic: Ensure CDPATH is unset
-if [ -n "${CDPATH+set}" ]; then
-	unset CDPATH
-fi
-
-# Generic: Ensure new files created by users are, say, 0600 rather than 0644
-umask 022
-
-# Generic: Run a logout script (bash shells will also run .bash_logout)
-trap 'rm ~/.sh_logout' EXIT
 
 # History: Don't preserve history on exit
 export HISTFILESIZE=0
@@ -67,7 +114,7 @@ done
 unset _local_historyFile
 export HISTFILE=/dev/null
 
-# Generic: Ensure locale is sane; US is possibly preferable
+# Locale: Make it sane; US is possibly preferable
 export LC_ALL=en_GB.UTF-8
 export LC_COLLATE=en_GB.UTF-8
 export LC_CTYPE=en_GB.UTF-8

@@ -3,6 +3,7 @@
 
 
 # This file is executed when an interactive login bash shell exits
+# It executes BEFORE trap EXIT, ie, before .sh_logout
 
 # History: Clear bash history, thereby preventing it being written
 history -c || true
