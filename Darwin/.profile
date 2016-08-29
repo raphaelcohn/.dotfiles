@@ -29,14 +29,48 @@ if [ -z "${HOME+unset}" ]; then
 	export HOME="$(cd ~; pwd -P)"
 fi
 
-# Generic: Don't preserve history on exit
+# Generic: Ensure new files created by users are, say, 0600 rather than 0644
+umask 022
+
+# Generic: Run a logout script (bash shells will also run .bash_logout)
+trap 'rm ~/.sh_logout' EXIT
+
+# History: Don't preserve history on exit
 export HISTFILESIZE=0
 
-# Generic: make all shells use bash's default for history size in-memory
+# History: make all shells use bash's default for history size in-memory
 export HISTSIZE=500
 
-# Generic: Force history file name to that for bash (by default, the ash shell, eg in BusyBox, uses .ash_history)
-export HISTFILE="$HOME"/.bash_history
+# History: Force history file name to be a blackhole; unsetting it makes shells uses their default:-
+# - bash uses .bash_history
+# - ash derivatives (dash, BusyBox ash) use .ash_history
+# - ksh88 (at least on Solaris) uses .sh_history
+# - MySQL, although not a shell, also creates a potentially dangerous .mysql_history file
+# - Likewise, PostgreSQL
+for _local_historyFile in .bash_history .ash_history .sh_history .mysql_history .psql_history
+do
+	if [ ! -e ~/"$_local_historyFile" ]; then
+		continue
+	fi
+	
+	if [ -c ~/"$_local_historyFile" ]; then
+		continue
+	fi
+	
+	ln -sf /dev/null ~/"$_local_historyFile" || true
+done
+unset _local_historyFile
+export HISTFILE=/dev/null
+
+# Generic: Ensure locale is sane; US is possibly preferable
+export LC_ALL=en_GB.UTF-8
+export LC_COLLATE=en_GB.UTF-8
+export LC_CTYPE=en_GB.UTF-8
+export LC_MESSAGES=en_GB.UTF-8
+export LC_MONETARY=en_GB.UTF-8
+export LC_NUMERIC=en_GB.UTF-8
+export LC_TIME=en_GB.UTF-8
+export LANG=en_GB.UTF-8
 
 # Note also that shells are sensitive to PWD and HOSTNAME
 
@@ -45,6 +79,14 @@ if [ -z "${ENV+unset}" ]; then
 	# .shinit is an alternative
 	export ENV="$HOME"/.shinit
 fi
+
+# Generic: TMOUT
+
+# Generic:ksh
+# Cares about FCEDIT, FPATH, NLSPATH, VISUAL
+
+# Generic:COLUMNS/LINES
+# Can we set this to a maximum?
 
 # Generic/Git: Use textmate (fallback to vim, vi or nano); absolute path so always works even if we later much with PATH
 if command -v mate 1>/dev/null 2>/dev/null; then

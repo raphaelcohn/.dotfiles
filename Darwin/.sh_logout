@@ -1,0 +1,48 @@
+# This file is part of .dotfiles. It is subject to the licence terms in the COPYRIGHT file found in the top-level directory of this distribution and at https://raw.githubusercontent.com/raphaelcohn/.dotfiles/master/COPYRIGHT. No part of .dotfiles, including this file, may be copied, modified, propagated, or distributed except according to the terms contained in the COPYRIGHT file.
+# Copyright © 2014-2015 The developers of .dotfiles. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/raphaelcohn/.dotfiles/master/COPYRIGHT.
+
+
+# This file is roughly equivalent to bash's .bash_logout, but is run via a trap (in .profile) for all POSIX shells
+# This means .bash_logout will also be run
+
+# History: If the history file has changed since it was established as /dev/null in .profile, get rid of it
+if [ -z "${HISTFILE+unset}" ]; then
+	if [ -f "$HISTFILE" -a -w "$HISTFILE" -a -s "$HISTFILE" ]; then
+		rm -rf "$HISTFILE" || true
+	fi
+fi
+
+# History: Don't preserve history on exit
+export HISTFILESIZE=0
+
+# History: make all shells use bash's default for history size in-memory
+export HISTSIZE=500
+
+# History: Force history file name to be a blackhole; unsetting it makes shells uses their default:-
+# - bash uses .bash_history
+# - ash derivatives (dash, BusyBox ash) use .ash_history
+# - ksh88 (at least on Solaris) uses .sh_history
+# - MySQL, although not a shell, also creates a potentially dangerous .mysql_history file
+# - Likewise, PostgreSQL
+for _local_historyFile in .bash_history .ash_history .sh_history .mysql_history .psql_history
+do
+	if [ ! -e ~/"$_local_historyFile" ]; then
+		continue
+	fi
+	
+	if [ -c ~/"$_local_historyFile" ]; then
+		continue
+	fi
+	
+	ln -sf /dev/null ~/"$_local_historyFile" || true
+done
+unset _local_historyFile
+export HISTFILE=/dev/null
+export MYSQL_HISTFILE=/dev/null
+
+# Screen: clear
+if command -v clear 1>/dev/null 2>/dev/null; then
+	clear 2>/dev/null || true
+elif [ -x /usr/bin/clear ]; then
+	clear 2>/dev/null || true
+fi

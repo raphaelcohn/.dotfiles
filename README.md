@@ -14,3 +14,10 @@ git clone https://github.com/raphaelcohn/.dotfiles.git
 ```
 
 Changes will take effect as soon new login and interactive shells are launched. For consistency, you should restart all shells; logging out and in again (or restarting) is a good way to do this.
+
+
+## Other files for consideration
+
+* `~/.pam_environment`
+* `~/.inputrc`
+* `~/.xsession`

@@ -14,7 +14,11 @@ case "$-" in
 	*i*)
 		# Non-login, Interactive shell (bash builtin behaviour)
 		# Login, Interactive shell (sourced via .bash_profile)
-		:
+		
+		# History: Suppress duplicates
+		# History: Suppress the history command
+		# History: Suppress the exit command (prevents accidents)
+		HISTIGNORE="&:history:exit"
 	;;
 	
 	*)

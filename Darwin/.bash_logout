@@ -3,14 +3,6 @@
 
 
 # This file is executed when an interactive login bash shell exits
-if command -v clear 1>/dev/null 2>/dev/null; then
-	clear 2>/dev/null || true
-elif [ -x /usr/bin/clear ]; then
-	clear 2>/dev/null || true
-fi
 
-# Generic: Force history file name to that for bash
-export HISTFILE="$HOME"/.bash_history
-
-# Generic: Don't preserve history
-export HISTFILESIZE=0
+# History: Clear bash history, thereby preventing it being written
+history -c || true

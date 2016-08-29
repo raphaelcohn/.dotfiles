@@ -124,7 +124,7 @@ install_main()
 		set -f
 		
 	cd - 1>/dev/null 2>/dev/null
-	
+
 	exit $eventualExitCode
 }
 
