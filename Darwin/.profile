@@ -132,14 +132,6 @@ if [ -z "${ENV+unset}" ]; then
 	export ENV="$HOME"/.shinit
 fi
 
-# Generic: TMOUT
-
-# Generic:ksh
-# Cares about FCEDIT, FPATH, NLSPATH, VISUAL
-
-# Generic:COLUMNS/LINES
-# Can we set this to a maximum?
-
 # Generic/Git: Use textmate (fallback to vim, vi or nano); absolute path so always works even if we later much with PATH
 if command -v mate 1>/dev/null 2>/dev/null; then
 	export EDITOR="$(command -v mate) --wait"
@@ -149,25 +141,6 @@ elif command -v vi 1>/dev/null 2>/dev/null; then
 	export EDITOR="$(command -v vi)"
 elif command -v nano 1>/dev/null 2>/dev/null; then
 	export EDITOR="$(command -v nano)"
-fi
-
-# Rust: rustup / multirust support
-if [ -d "$HOME"/.cargo/bin ]; then
-	export PATH="$HOME"/.cargo/bin:"$PATH"
-fi
-
-# Rust: Required to build bindgen on Mac OS X
-if [ -z "${DYLD_LIBRARY_PATH+unset}" ]; then
-	export DYLD_LIBRARY_PATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib
-else
-	export DYLD_LIBRARY_PATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib:"$DYLD_LIBRARY_PATH"
-fi
-
-# Android on Mac OS X
-if [ -z "${ANDROID_HOME+unset}" ]; then
-	if [ -d /usr/local/opt/android-sdk ]; then
-		export ANDROID_HOME=/usr/local/opt/android-sdk
-	fi
 fi
 
 # Homebrew: analytics opt-out (These guys are very naive)
@@ -197,6 +170,25 @@ if command -v brew 1>/dev/null 2>/dev/null; then
 		if [ -d ~/perl5 ]; then
 			eval $(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib)
 		fi
+	fi
+fi
+
+# Rust: rustup / multirust support
+if [ -d "$HOME"/.cargo/bin ]; then
+	export PATH="$HOME"/.cargo/bin:"$PATH"
+fi
+
+# Rust: Required to build bindgen on Mac OS X
+if [ -z "${DYLD_LIBRARY_PATH+unset}" ]; then
+	export DYLD_LIBRARY_PATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib
+else
+	export DYLD_LIBRARY_PATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib:"$DYLD_LIBRARY_PATH"
+fi
+
+# Android on Mac OS X
+if [ -z "${ANDROID_HOME+unset}" ]; then
+	if [ -d /usr/local/opt/android-sdk ]; then
+		export ANDROID_HOME=/usr/local/opt/android-sdk
 	fi
 fi
 
