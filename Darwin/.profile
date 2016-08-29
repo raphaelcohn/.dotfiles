@@ -24,9 +24,14 @@ if [ -z "${PATH+unset}" ]; then
 	export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 fi
 
-# Generic: Ensure HOME is set (usually set via getty or PAM)
-if [ -z "${HOME+unset}" ]; then
-	export HOME="$(cd ~; pwd -P)"
+# Generic: Ensure FCEDIT is unset (important for ksh88, pdksh, yash)
+if [ -n "${FCEDIT+set}" ]; then
+	unset FCEDIT
+fi
+
+# Generic: Ensure CDPATH is unset
+if [ -n "${CDPATH+set}" ]; then
+	unset CDPATH
 fi
 
 # Generic: Ensure new files created by users are, say, 0600 rather than 0644
