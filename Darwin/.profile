@@ -147,6 +147,8 @@ elif command -v vi 1>/dev/null 2>/dev/null; then
 	export EDITOR="$(command -v vi)"
 elif command -v nano 1>/dev/null 2>/dev/null; then
 	export EDITOR="$(command -v nano)"
+elif command -v ed 1>/dev/null 2>/dev/null; then
+	export EDITOR="$(command -v ed)"
 fi
 export VISUAL="$EDITOR"
 
