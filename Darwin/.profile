@@ -177,30 +177,6 @@ if command -v brew 1>/dev/null 2>/dev/null; then
 	fi
 fi
 
-# Rust: Required to build bindgen on Mac OS X
-if [ -z "${DYLD_LIBRARY_PATH+unset}" ]; then
-	export DYLD_LIBRARY_PATH='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib'
-else
-
-	_local_IFS="$IFS"
-	IFS=:
-	_local_needsPathFragment=true
-	for _local_pathFragment in $DYLD_LIBRARY_PATH
-	do
-		if [ "$_local_pathFragment" = '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib' ]; then
-			_local_needsPathFragment=false
-			break
-		fi
-	done
-	IFS="$_local_IFS"
-	if $_local_needsPathFragment; then
-		export DYLD_LIBRARY_PATH='/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib':"$DYLD_LIBRARY_PATH"
-	fi
-	unset _local_pathFragment
-	unset _local_needsPathFragment
-	unset _local_IFS
-fi
-
 # Android on Mac OS X
 if [ -z "${ANDROID_HOME+unset}" ]; then
 	if [ -d /usr/local/opt/android-sdk ]; then
