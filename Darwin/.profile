@@ -148,6 +148,7 @@ elif command -v vi 1>/dev/null 2>/dev/null; then
 elif command -v nano 1>/dev/null 2>/dev/null; then
 	export EDITOR="$(command -v nano)"
 fi
+export VISUAL="$EDITOR"
 
 # Homebrew: analytics opt-out (These guys are very naive)
 if [ -z "${HOMEBREW_NO_ANALYTICS+unset}" ]; then
