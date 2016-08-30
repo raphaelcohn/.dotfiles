@@ -6,9 +6,23 @@
 # This means .bash_logout will also be run
 
 # History: If the history file has changed since it was established as /dev/null in .profile, get rid of it
-if [ -z "${HISTFILE+unset}" ]; then
+if [ -n "${HISTFILE+set}" ]; then
 	if [ -f "$HISTFILE" -a -w "$HISTFILE" -a -s "$HISTFILE" ]; then
 		rm -rf "$HISTFILE" || true
+	fi
+fi
+
+# MySQL History: If the history file has changed since it was established as /dev/null in .profile, get rid of it
+if [ -n "${MYSQL_HISTFILE+set}" ]; then
+	if [ -f "$MYSQL_HISTFILE" -a -w "$MYSQL_HISTFILE" -a -s "$MYSQL_HISTFILE" ]; then
+		rm -rf "$MYSQL_HISTFILE" || true
+	fi
+fi
+
+# Less History: If the history file has changed since it was established as /dev/null in .profile, get rid of it
+if [ -n "${LESSHISTFILE+set}" ]; then
+	if [ -f "$LESSHISTFILE" -a -w "$LESSHISTFILE" -a -s "$LESSHISTFILE" ]; then
+		rm -rf "$LESSHISTFILE" || true
 	fi
 fi
 
@@ -18,13 +32,17 @@ export HISTFILESIZE=0
 # History: make all shells use bash's default for history size in-memory
 export HISTSIZE=500
 
+# History: disable for less
+export LESSHISTSIZE=0
+
 # History: Force history file name to be a blackhole; unsetting it makes shells uses their default:-
 # - bash uses .bash_history
 # - ash derivatives (dash, BusyBox ash) use .ash_history
 # - ksh88 (at least on Solaris) uses .sh_history
 # - MySQL, although not a shell, also creates a potentially dangerous .mysql_history file
 # - Likewise, PostgreSQL
-for _local_historyFile in .bash_history .ash_history .sh_history .mysql_history .psql_history
+# - Likewise, less
+for _local_historyFile in .bash_history .ash_history .sh_history .mysql_history .psql_history .lesshst
 do
 	if [ ! -e ~/"$_local_historyFile" ]; then
 		continue
@@ -39,6 +57,7 @@ done
 unset _local_historyFile
 export HISTFILE=/dev/null
 export MYSQL_HISTFILE=/dev/null
+export LESSHISTFILE=/dev/null
 
 # Screen: clear
 if command -v clear 1>/dev/null 2>/dev/null; then

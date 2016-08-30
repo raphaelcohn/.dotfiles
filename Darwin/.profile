@@ -79,6 +79,8 @@ if [ -n "${MAILPATH+set}" ]; then
 	unset MAILPATH
 fi
 
+# Security: Make less more 'secure' (eg unable to edit or launch shell commands)
+export LESSSECURE=1
 
 # History: Ensure FCEDIT is unset (important for ksh88, pdksh, yash)
 if [ -n "${FCEDIT+set}" ]; then
@@ -91,13 +93,17 @@ export HISTFILESIZE=0
 # History: make all shells use bash's default for history size in-memory
 export HISTSIZE=500
 
+# History: disable for less
+export LESSHISTSIZE=0
+
 # History: Force history file name to be a blackhole; unsetting it makes shells uses their default:-
 # - bash uses .bash_history
 # - ash derivatives (dash, BusyBox ash) use .ash_history
 # - ksh88 (at least on Solaris) uses .sh_history
 # - MySQL, although not a shell, also creates a potentially dangerous .mysql_history file
 # - Likewise, PostgreSQL
-for _local_historyFile in .bash_history .ash_history .sh_history .mysql_history .psql_history
+# - Likewise, less
+for _local_historyFile in .bash_history .ash_history .sh_history .mysql_history .psql_history .lesshst
 do
 	if [ ! -e ~/"$_local_historyFile" ]; then
 		continue
@@ -111,6 +117,8 @@ do
 done
 unset _local_historyFile
 export HISTFILE=/dev/null
+export MYSQL_HISTFILE=/dev/null
+export LESSHISTFILE=/dev/null
 
 # Locale: Make it sane; US is possibly preferable
 export LC_ALL=en_GB.UTF-8
@@ -130,7 +138,7 @@ if [ -z "${ENV+unset}" ]; then
 	export ENV="$HOME"/.shinit
 fi
 
-# Generic/Git: Use textmate (fallback to vim, vi or nano); absolute path so always works even if we later much with PATH
+# Editor: Use textmate (fallback to vim, vi or nano); absolute path so always works even if we later much with PATH
 if command -v mate 1>/dev/null 2>/dev/null; then
 	export EDITOR="$(command -v mate) --wait"
 elif command -v vim 1>/dev/null 2>/dev/null; then
