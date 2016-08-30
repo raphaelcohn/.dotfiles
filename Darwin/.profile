@@ -20,8 +20,8 @@ export PATH="$HOME"/.cargo/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr
 # Security: Run a logout script (bash shells will also run .bash_logout; this happens before .sh_logout)
 trap '. ~/.sh_logout' EXIT
 
-# Permissions: Ensure new files created by users are, say, 0600 rather than 0644
-umask 022
+# Permissions: Ensure new files created by users are unreadable, unwritable and unexecutable by either group or others
+umask 0077
 
 # Permissions: Make sure ~/.netrc is locked down
 # Consider making this file owned by root but readable by the user
