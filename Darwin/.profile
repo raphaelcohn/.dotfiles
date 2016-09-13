@@ -177,6 +177,11 @@ if command -v brew 1>/dev/null 2>/dev/null; then
 	fi
 fi
 
+# Homebrew: Add latest llvm to the PATH
+if command -v brew 1>/dev/null 2>/dev/null; then
+	export PATH="$(brew --prefix llvm)"/bin:"$PATH"
+fi
+
 # Android on Mac OS X
 if [ -z "${ANDROID_HOME+unset}" ]; then
 	if [ -d /usr/local/opt/android-sdk ]; then
