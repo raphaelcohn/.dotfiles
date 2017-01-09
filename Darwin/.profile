@@ -15,7 +15,7 @@ fi
 # Essential: Ensure PATH is set (usually set via getty or PAM; we want to control it here)
 # Default Mac OS X PATH is /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin (We do not use /etc/paths and /etc/paths.d)
 # We want to make it include homebrew's sbin and rustup's / multirusts's cargo bin
-export PATH="$HOME"/.cargo/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
+export PATH="$HOME"/.go/bin:"$HOME"/.cargo/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
 
 # Security: Run a logout script (bash shells will also run .bash_logout; this happens before .sh_logout)
 trap '. ~/.sh_logout' EXIT
@@ -186,5 +186,15 @@ fi
 if [ -z "${ANDROID_HOME+unset}" ]; then
 	if [ -d /usr/local/opt/android-sdk ]; then
 		export ANDROID_HOME=/usr/local/opt/android-sdk
+	fi
+fi
+
+# Google Go
+if command -v go 1>/dev/null 2>/dev/null; then
+	if [ -z "${GOPATH+unset}" ]; then
+		if [ ! -e "$HOME"/.go ]; then
+			mkdir 0700 "$HOME"/.go
+		fi
+		export GOPATH="$HOME"/.go
 	fi
 fi
