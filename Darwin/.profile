@@ -14,7 +14,7 @@ fi
 
 # Essential: Ensure PATH is set (usually set via getty or PAM; we want to control it here)
 # Default Mac OS X PATH is /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin (We do not use /etc/paths and /etc/paths.d)
-# We want to make it include homebrew's sbin and rustup's / multirusts's cargo bin
+# We want to make it include homebrew's sbin and rustup's cargo bin
 export PATH="$HOME"/.go/bin:"$HOME"/.cargo/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
 
 # Security: Run a logout script (bash shells will also run .bash_logout; this happens before .sh_logout)
