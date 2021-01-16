@@ -183,10 +183,13 @@ if command -v brew 1>/dev/null 2>/dev/null; then
 fi
 
 # Homebrew: Add mactex to the PATH
-texliveVersion=2017
-if [ -d /usr/local/texlive/"$texliveVersion"/bin/x86_64-darwin ]; then
-	export PATH=/usr/local/texlive/"$texliveVersion"/bin/x86_64-darwin:"$PATH"
-fi
+for texliveVersion in 2020 2021 2022 2023 2024 2025 2026 2027 2028 2029
+do
+	if [ -d /usr/local/texlive/"$texliveVersion"/bin/x86_64-darwin ]; then
+		export PATH=/usr/local/texlive/"$texliveVersion"/bin/x86_64-darwin:"$PATH"
+		break
+	fi
+done
 unset texliveVersion
 
 # Android on Mac OS X

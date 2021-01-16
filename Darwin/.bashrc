@@ -32,3 +32,5 @@ case "$-" in
 	;;
 	
 esac
+
+PATH="/Users/raph/perl5/bin${PATH:+:${PATH}}"; export PATH;
